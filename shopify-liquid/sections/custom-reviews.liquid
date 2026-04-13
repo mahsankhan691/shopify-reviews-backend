@@ -1,0 +1,472 @@
+{% comment %}
+  ════════════════════════════════════════════════════════
+  Custom Reviews Section for Shopify
+  ════════════════════════════════════════════════════════
+  
+  SETUP INSTRUCTIONS:
+  1. In your Shopify Admin → Online Store → Themes → Edit code
+  2. Go to Sections folder → Add new section → Name it "custom-reviews"
+  3. Paste this entire file content
+  4. Go to the Theme Editor → Product page → Add section → Custom Reviews
+  5. Replace "YOUR_VERCEL_BACKEND_URL" in the schema below with your actual Vercel URL
+  ════════════════════════════════════════════════════════
+{% endcomment %}
+
+<div class="custom-reviews-section" id="custom-reviews-{{ section.id }}">
+  
+  <!-- ───── HEADER ───── -->
+  <div class="reviews-header">
+    <h2 class="reviews-title">Customer Reviews</h2>
+    <div class="reviews-summary" id="reviews-summary-{{ section.id }}">
+      <div class="avg-rating-box">
+        <span class="avg-rating-number" id="avg-rating-{{ section.id }}">0.0</span>
+        <div class="avg-stars" id="avg-stars-{{ section.id }}">☆☆☆☆☆</div>
+        <span class="total-reviews" id="total-reviews-{{ section.id }}">0 reviews</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── REVIEW FORM ───── -->
+  <div class="review-form-wrapper">
+    <h3 class="form-heading">Write a Review</h3>
+    <form id="review-form-{{ section.id }}" class="review-form">
+      
+      <div class="form-group">
+        <label for="reviewer-name-{{ section.id }}">Your Name *</label>
+        <input 
+          type="text" 
+          id="reviewer-name-{{ section.id }}" 
+          name="name" 
+          placeholder="Enter your name"
+          required
+          maxlength="100"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Your Rating *</label>
+        <div class="star-rating-input" id="star-input-{{ section.id }}" data-rating="0">
+          <span class="star" data-value="1">★</span>
+          <span class="star" data-value="2">★</span>
+          <span class="star" data-value="3">★</span>
+          <span class="star" data-value="4">★</span>
+          <span class="star" data-value="5">★</span>
+        </div>
+        <input type="hidden" id="rating-value-{{ section.id }}" name="rating" value="0" />
+      </div>
+
+      <div class="form-group">
+        <label for="review-text-{{ section.id }}">Your Review *</label>
+        <textarea 
+          id="review-text-{{ section.id }}" 
+          name="reviewText" 
+          placeholder="Share your experience with this product..."
+          rows="4"
+          required
+          maxlength="2000"
+        ></textarea>
+      </div>
+
+      <div class="form-message" id="form-message-{{ section.id }}"></div>
+
+      <button type="submit" class="submit-btn" id="submit-btn-{{ section.id }}">
+        <span class="btn-text">Submit Review</span>
+        <span class="btn-loader" style="display:none;">Submitting...</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- ───── REVIEWS LIST ───── -->
+  <div class="reviews-list-wrapper">
+    <h3 class="reviews-list-title">All Reviews</h3>
+    <div id="reviews-list-{{ section.id }}" class="reviews-list">
+      <div class="reviews-loading">Loading reviews...</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ───── STYLES ───── -->
+<style>
+  .custom-reviews-section {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .reviews-header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .reviews-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+  }
+
+  .avg-rating-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .avg-rating-number {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1a1a1a;
+    line-height: 1;
+  }
+
+  .avg-stars {
+    font-size: 24px;
+    color: #f59e0b;
+    letter-spacing: 2px;
+  }
+
+  .total-reviews {
+    font-size: 14px;
+    color: #6b7280;
+  }
+
+  .review-form-wrapper {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 40px;
+  }
+
+  .form-heading {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+    background: white;
+    box-sizing: border-box;
+    color: #1a1a1a;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #4f46e5;
+  }
+
+  .star-rating-input {
+    display: flex;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .star-rating-input .star {
+    font-size: 32px;
+    color: #d1d5db;
+    transition: color 0.15s, transform 0.1s;
+    user-select: none;
+  }
+
+  .star-rating-input .star:hover,
+  .star-rating-input .star.active {
+    color: #f59e0b;
+    transform: scale(1.1);
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .submit-btn:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+  }
+
+  .submit-btn:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .form-message {
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    display: none;
+  }
+
+  .form-message.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    display: block;
+  }
+
+  .form-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    display: block;
+  }
+
+  .reviews-list-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+  }
+
+  .reviews-loading, .no-reviews {
+    text-align: center;
+    color: #6b7280;
+    padding: 40px;
+    font-size: 15px;
+  }
+
+  .review-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: box-shadow 0.2s;
+  }
+
+  .review-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .review-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .reviewer-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #4f46e5;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .reviewer-info { flex: 1; }
+
+  .reviewer-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1a1a1a;
+    margin: 0;
+  }
+
+  .review-date {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  .review-stars {
+    font-size: 16px;
+    color: #f59e0b;
+    letter-spacing: 1px;
+  }
+
+  .review-text {
+    font-size: 15px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0;
+  }
+</style>
+
+<!-- ───── JAVASCRIPT ───── -->
+<script>
+(function() {
+  const BACKEND_URL = "{{ section.settings.backend_url | default: 'https://your-vercel-app.vercel.app' }}";
+  const PRODUCT_ID  = "{{ product.id }}";
+  const SECTION_ID  = "{{ section.id }}";
+
+  const form        = document.getElementById(`review-form-${SECTION_ID}`);
+  const starInput   = document.getElementById(`star-input-${SECTION_ID}`);
+  const ratingInput = document.getElementById(`rating-value-${SECTION_ID}`);
+  const reviewsList = document.getElementById(`reviews-list-${SECTION_ID}`);
+  const formMsg     = document.getElementById(`form-message-${SECTION_ID}`);
+  const submitBtn   = document.getElementById(`submit-btn-${SECTION_ID}`);
+  const avgRating   = document.getElementById(`avg-rating-${SECTION_ID}`);
+  const avgStars    = document.getElementById(`avg-stars-${SECTION_ID}`);
+  const totalRev    = document.getElementById(`total-reviews-${SECTION_ID}`);
+
+  const stars = starInput.querySelectorAll('.star');
+  
+  stars.forEach(star => {
+    star.addEventListener('mouseover', function() { highlightStars(parseInt(this.dataset.value)); });
+    star.addEventListener('mouseout',  function() { highlightStars(parseInt(ratingInput.value) || 0); });
+    star.addEventListener('click',     function() {
+      ratingInput.value = this.dataset.value;
+      highlightStars(parseInt(this.dataset.value));
+    });
+  });
+
+  function highlightStars(count) {
+    stars.forEach((s, i) => s.classList.toggle('active', i < count));
+  }
+
+  function renderStars(rating) {
+    return '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+  }
+
+  function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+  }
+
+  function showMessage(text, type) {
+    formMsg.textContent = text;
+    formMsg.className   = `form-message ${type}`;
+  }
+
+  async function loadReviews() {
+    reviewsList.innerHTML = '<div class="reviews-loading">Loading reviews...</div>';
+    try {
+      const res  = await fetch(`${BACKEND_URL}/api/reviews?productId=${PRODUCT_ID}`);
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      avgRating.textContent = data.averageRating || '0.0';
+      avgStars.textContent  = renderStars(data.averageRating || 0);
+      totalRev.textContent  = `${data.count} ${data.count === 1 ? 'review' : 'reviews'}`;
+
+      if (data.reviews.length === 0) {
+        reviewsList.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review!</div>';
+        return;
+      }
+
+      reviewsList.innerHTML = data.reviews.map(review => `
+        <div class="review-card">
+          <div class="review-card-header">
+            <div class="reviewer-avatar">${review.name.charAt(0).toUpperCase()}</div>
+            <div class="reviewer-info">
+              <p class="reviewer-name">${escapeHtml(review.name)}</p>
+              <p class="review-date">${formatDate(review.createdAt)}</p>
+            </div>
+            <div class="review-stars">${renderStars(review.rating)}</div>
+          </div>
+          <p class="review-text">${escapeHtml(review.reviewText)}</p>
+        </div>
+      `).join('');
+    } catch (err) {
+      reviewsList.innerHTML = '<div class="no-reviews">Could not load reviews. Please try again later.</div>';
+    }
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name       = document.getElementById(`reviewer-name-${SECTION_ID}`).value.trim();
+    const rating     = parseInt(ratingInput.value);
+    const reviewText = document.getElementById(`review-text-${SECTION_ID}`).value.trim();
+
+    if (!name || !reviewText) { showMessage('Please fill in all fields.', 'error'); return; }
+    if (!rating || rating < 1 || rating > 5) { showMessage('Please select a star rating.', 'error'); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.querySelector('.btn-text').style.display = 'none';
+    submitBtn.querySelector('.btn-loader').style.display = 'inline';
+    formMsg.className = 'form-message';
+
+    try {
+      const res  = await fetch(`${BACKEND_URL}/api/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId: PRODUCT_ID, name, rating, reviewText })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showMessage('✅ Thank you! Your review has been submitted.', 'success');
+        form.reset();
+        ratingInput.value = '0';
+        highlightStars(0);
+        await loadReviews();
+      } else {
+        showMessage(data.message || 'Failed to submit review.', 'error');
+      }
+    } catch (err) {
+      showMessage('Network error. Please check your connection.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.querySelector('.btn-text').style.display = 'inline';
+      submitBtn.querySelector('.btn-loader').style.display = 'none';
+    }
+  });
+
+  loadReviews();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Custom Reviews",
+  "settings": [
+    {
+      "type": "text",
+      "id": "backend_url",
+      "label": "Backend API URL",
+      "info": "Your Vercel backend URL (e.g. https://shopify-reviews-backend.vercel.app)",
+      "placeholder": "https://your-app.vercel.app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Reviews",
+      "category": "Product"
+    }
+  ]
+}
+{% endschema %}
