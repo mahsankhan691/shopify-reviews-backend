@@ -1,7 +1,11 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const dns = require("dns");
 require("dotenv").config();
+
+// Fix for MongoDB Atlas "querySrv ECONNREFUSED" issue
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 
