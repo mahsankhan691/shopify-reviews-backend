@@ -20,7 +20,9 @@
     <div class="reviews-summary" id="reviews-summary-{{ section.id }}">
       <div class="avg-rating-box">
         <span class="avg-rating-number" id="avg-rating-{{ section.id }}">0.0</span>
-        <div class="avg-stars" id="avg-stars-{{ section.id }}">☆☆☆☆☆</div>
+        <div class="avg-stars" id="avg-stars-{{ section.id }}">
+          <div class="star-rating-display"><div class="stars-outer">★★★★★<div class="stars-inner" style="width: 0%">★★★★★</div></div></div>
+        </div>
         <span class="total-reviews" id="total-reviews-{{ section.id }}">0 reviews</span>
       </div>
     </div>
@@ -124,13 +126,46 @@
 
   .avg-stars {
     font-size: 24px;
-    color: #f59e0b;
-    letter-spacing: 2px;
+    margin-top: 4px;
+    display: flex;
+    justify-content: center;
   }
 
   .total-reviews {
     font-size: 14px;
     color: #6b7280;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* Partial Stars CSS */
+  .star-rating-display {
+    display: inline-block;
+    position: relative;
+    font-family: inherit;
+  }
+
+  .stars-outer {
+    position: relative;
+    display: inline-block;
+    color: #d1d5db; /* Gray stars */
+    letter-spacing: 2px;
+  }
+
+  .stars-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 0;
+    color: #f59e0b; /* Gold stars */
+    transition: width 0.3s ease;
+  }
+
+  .review-stars .stars-outer {
+    font-size: 16px;
+    letter-spacing: 1px;
   }
 
   .review-form-wrapper {
@@ -250,6 +285,35 @@
     margin-bottom: 20px;
   }
 
+  /* Scrollable Reviews List */
+  .reviews-list {
+    max-height: 520px; /* Comfortably fits roughly 3-4 cards depending on content */
+    overflow-y: auto;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #4f46e5 #f3f4f6;
+  }
+
+  /* Custom scrollbar for Webkit (Chrome, Safari, Edge) */
+  .reviews-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .reviews-list::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 10px;
+  }
+
+  .reviews-list::-webkit-scrollbar-thumb {
+    background: #c7d2fe;
+    border-radius: 10px;
+    border: 1px solid #f3f4f6;
+  }
+
+  .reviews-list::-webkit-scrollbar-thumb:hover {
+    background: #4f46e5;
+  }
+
   .reviews-loading, .no-reviews {
     text-align: center;
     color: #6b7280;
@@ -353,7 +417,15 @@
   }
 
   function renderStars(rating) {
-    return '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
+    const percentage = (parseFloat(rating) / 5) * 100;
+    return `
+      <div class="star-rating-display">
+        <div class="stars-outer">
+          ★★★★★
+          <div class="stars-inner" style="width: ${percentage}%">★★★★★</div>
+        </div>
+      </div>
+    `;
   }
 
   function formatDate(dateStr) {
@@ -379,7 +451,7 @@
       if (!data.success) throw new Error(data.message);
 
       avgRating.textContent = data.averageRating || '0.0';
-      avgStars.textContent  = renderStars(data.averageRating || 0);
+      avgStars.innerHTML     = renderStars(data.averageRating || 0);
       totalRev.textContent  = `${data.count} ${data.count === 1 ? 'review' : 'reviews'}`;
 
       if (data.reviews.length === 0) {
