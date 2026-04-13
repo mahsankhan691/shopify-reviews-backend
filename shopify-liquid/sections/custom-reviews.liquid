@@ -56,13 +56,12 @@
       </div>
 
       <div class="form-group">
-        <label for="review-text-{{ section.id }}">Your Review *</label>
+        <label for="review-text-{{ section.id }}">Your Review (Optional)</label>
         <textarea 
           id="review-text-{{ section.id }}" 
           name="reviewText" 
-          placeholder="Share your experience with this product..."
+          placeholder="Share your experience (optional)..."
           rows="4"
-          required
           maxlength="2000"
         ></textarea>
       </div>
@@ -412,7 +411,7 @@
     const rating     = parseInt(ratingInput.value);
     const reviewText = document.getElementById(`review-text-${SECTION_ID}`).value.trim();
 
-    if (!name || !reviewText) { showMessage('Please fill in all fields.', 'error'); return; }
+    if (!name) { showMessage('Please fill in your name.', 'error'); return; }
     if (!rating || rating < 1 || rating > 5) { showMessage('Please select a star rating.', 'error'); return; }
 
     submitBtn.disabled = true;

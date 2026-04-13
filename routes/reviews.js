@@ -51,10 +51,10 @@ router.post("/", async (req, res) => {
     const { productId, name, rating, reviewText } = req.body;
 
     // Basic validation
-    if (!productId || !name || !rating || !reviewText) {
+    if (!productId || !name || !rating) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required: productId, name, rating, reviewText",
+        message: "Key fields are required: productId, name, rating",
       });
     }
 
@@ -70,7 +70,7 @@ router.post("/", async (req, res) => {
       productId,
       name: name.trim(),
       rating: parseInt(rating),
-      reviewText: reviewText.trim(),
+      reviewText: reviewText ? reviewText.trim() : "",
     });
 
     const savedReview = await newReview.save();

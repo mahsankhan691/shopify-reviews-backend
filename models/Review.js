@@ -21,7 +21,7 @@ const ReviewSchema = new mongoose.Schema(
     },
     reviewText: {
       type: String,
-      required: [true, "Review text is required"],
+      required: false,
       trim: true,
       maxlength: [2000, "Review cannot exceed 2000 characters"],
     },
